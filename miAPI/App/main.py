@@ -1,103 +1,105 @@
-#Importaciones
 from fastapi import FastAPI, status, HTTPException
-import asyncio 
-from typing import Optional 
+import asyncio
+from typing import Optional
+from pydantic import BaseModel,Field
 
-#Instacia 
+#instancia del servidor 
 app = FastAPI(
-    title='Mi primer API',
-     description='Alexis Hernandez',
-     version='1.0.0'
-     )
-#TB ficticia 
+    title="Mi primer API",
+    description="Alexis Hernandez",
+    version="1.0.0"
+    )
+#BD ficticia
 usuarios=[
-    {"id":1,"nombre":"Juan Carlos","edad":23},
-    {"id":2,"nombre":"America","edad":20},
-    {"id":3,"nombre":"Sofi","edad":19},
+    {"id": 1, "nombre":"Juan", "edad" :23 },
+    {"id": 2, "nombre":"Diego", "edad" :23 },
+    {"id": 3, "nombre":"Jose", "edad" :19 },
+    {"id": 4, "nombre":"Jafet", "edad" :14 },
+    {"id": 5, "nombre":"Alexis", "edad" :39 },
 ]
 
-#Endpoinst
-@app.get("/", tags=['Inicio'])
+#modelo de validacion pydantic
+class usuario_create(BaseModel):
+    id: int = Field(...,gt=0, description="Identificador de usuario")
+    nombre: str = Field(..., min_length=3, max=50, example="Alexis")
+    edad: int = Field(..., ge=1, le=123, description="Edad valida entre 1 - 123")
+
+
+#endpoints
+@app.get("/", tags=["Inicio"])
 async def bienvenida():
-    return {"mensaje": "¡Bienvenido de mi API!"}
+    return {"mensaje" : "¡Bienvenido a mi API!"}
 
-@app.get("/HolaMundo", tags=['Bienvenida Asincrona'])
+@app.get("/HolaMundo" ,tags=["Bienvenida Asincrona"])
 async def hola():
-    await asyncio.sleep(4) #Simulacion de una peticion
-    return{
-        "mensaje": "¡Hola mundo FastAPI!",
-        "estatus": "200"
-    }
+    await asyncio.sleep(4)
+    return {"mensaje" : "¡Hola mundo FastAPI! ",
+            "estatus": "200"
+            }
 
-@app.get("/v1/parametroOb/{id}", tags=['Parametro Obligatorio'])
+@app.get("/v1/parametroOp/{id}", tags=["Parametro obligatorio"])
 async def consultaUno(id:int):
-    return {"Se encontro usuario": id}
+    return {"Se encontro usuario" : id}
 
-@app.get("/v1/parametroOp/", tags=['Parametro opcional'])
-async def consultaTodos(id: Optional[int]= None):
+
+@app.get("/v1/parametroOp/", tags=["Parametro opcional"])
+async def consultaTodos(id:Optional[int]=None):
     if id is not None:
         for usuario in usuarios:
-            if usuario["id"]== id: 
-                return{"mensaje":"usuario encontrado", "usuario": usuario}
-        return{"mensaje":"usuario no encontrado", "usuario": id}
+            if usuario["id"] == id:
+                return{"mensaje:":"usuario encontrado", "usuario":usuario}
+        return{"mensaje:":"usuario no encontrado", "usuario":id}
     else:
-        return{"mensaje":"No se proporciono id"}
+        return{"mensaje:":"No se proporciono id"}
+    
 
-
-@app.get("/v1/usuarios/", tags=['CRUD HTTP'])
+@app.get("/v1/usuarios/", tags=["CRUD HTTP"])
 async def leer_usuarios():
     return{
         "status":"200",
-        "total": len(usuarios), 
+        "total": len(usuarios),
         "usuarios":usuarios
     }
 
-
-@app.post("/v1/usuarios/", tags=['CRUD HTTP'],status_code=status.HTTP_201_CREATED)
-async def crear_usuario(usuario:dict):
+@app.post("/v1/usuarios/",tags=["CRUD HTTP"],status_code=status.HTTP_201_CREATED)
+async def crear_usuario(usuario:usuario_create):
     for usr in usuarios:
-        if usr["id"] == usuario.get("id"):
+        if usr ["id"] == usuario.id:
             raise HTTPException(
                 status_code=400,
                 detail="El id ya existe"
             )
     usuarios.append(usuario)
     return{
-        "mensaje":"Usuario Agregado",
+        "mensaje":"Usuario agregado",
         "Usuario":usuario
     }
 
-@app.put("/v1/usuarios/", tags=['CRUD HTTP'])
-async def actualizar_usuario(usuario: dict):
-    found = False
-    for index, usr in enumerate(usuarios):
-        if usr["id"] == usuario.get("id"):
-            usuarios[index] = usuario  
-            found = True
+@app.put("/v1/usuarios/{id_buscado}", tags=["CRUD HTTP"])
+async def actualizar_usuario(id_buscado: int, datos_nuevos: dict):
+    for usr in usuarios:
+        if usr["id"] == id_buscado:
+            usr.update(datos_nuevos)
             return {
-                "mensaje": "Usuario Actualizado Correctamente",
-                "usuario": usuario
+                "mensaje": "Usuario actualizado",
+                "usuario": usr
             }
-    if not found:
-        raise HTTPException(
-            status_code=404,
-            detail="El usuario con ese ID no existe"
-        )
-
-# --- Endpoint para ELIMINAR ---
-@app.delete("/v1/usuarios/{id}", tags=['CRUD HTTP'])
-async def eliminar_usuario(id: int):
-    # Buscamos el usuario por su ID
-    for index, usr in enumerate(usuarios):
-        if usr["id"] == id:
-            usuarios.pop(index) # Lo sacamos de la lista
-            return {
-                "mensaje": "Usuario Eliminado Correctamente",
-                "id_eliminado": id
-            }
-    
-    # Si no lo encontramos
+        
     raise HTTPException(
         status_code=404,
-        detail="El usuario no existe, no se puede eliminar"
+        detail="Usuario no encontrado"
+    )  
+
+@app.delete("/v1/usuarios/{id}", tags=['CRUD HTTP'], status_code=status.HTTP_200_OK)
+async def eliminar_usuario(id:int):
+    for usuario in usuarios:
+        if usuario["id"] == id:
+            usuarios.remove(usuario)
+            return{
+                "mensaje": "Usuario eliminado",
+                "usuario": usuario
+            }
+    raise HTTPException(
+        status_code=400, 
+        detail="Usuario no encontrado"
     )
