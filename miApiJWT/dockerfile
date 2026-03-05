@@ -1,0 +1,21 @@
+# 1. Importamos la imagen base de Python
+FROM python:3.12-slim
+
+# 2. Establecemos el directorio de trabajo dentro del contenedor
+WORKDIR /app
+
+# 3. Copiamos el archivo de requerimientos primero 
+COPY requirements.txt .
+
+# 4. Instalamos las dependencias necesarias para OAuth2 y JWT
+# Esto incluye python-jose, passlib y python-multipart
+RUN pip install --no-cache-dir -r requirements.txt
+
+# 5. Copiamos todo el contenido de tu carpeta local 'APP' a la raíz /app del contenedor
+COPY ./APP /app
+
+# 6. Exponemos el nuevo puerto configurado
+EXPOSE 9000
+
+# 7. Ejecutamos Uvicorn apuntando al archivo main.py
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "9000"]

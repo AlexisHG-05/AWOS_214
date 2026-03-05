@@ -1,0 +1,9 @@
+services:
+  api:
+    build: .
+    container_name: server_fastapi_jwt
+    ports:
+      - "9000:9000"
+    volumes:
+      - ./APP:/app 
+    restart: always
