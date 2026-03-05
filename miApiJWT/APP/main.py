@@ -7,7 +7,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
 from datetime import datetime, timedelta
  # Configuracion de seguridad
-SECRET_KEY = "Alexis_ Hernandez_Gutierrez_UPQ" # Llave para firmar los tokens
+SECRET_KEY = "Alexis_ Hernandez_Gutierrez_UPQ" 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30 # Límite máximo de 30 minutos
 
@@ -16,9 +16,11 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 # instancia del servidor 
 app = FastAPI(
+
     title="Mi API con JWT",
     description="Alexis Hernandez - Práctica OAuth2 + JWT",
     version="2.0.0"
+    
 )
 
 # BD ficticia
