@@ -1,0 +1,8 @@
+services:
+  api:
+    build: .
+    container_name: server_prestamos_pc
+    ports:
+      - "4000:5000"  # <--- Puerto externo: 4000, Puerto interno: 5000
+    volumes:
+      - ./App:/app/app
