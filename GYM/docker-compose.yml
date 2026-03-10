@@ -1,0 +1,8 @@
+services:
+  api:
+    build: .
+    container_name: server_gym
+    ports:
+      - "7000:5000"
+    volumes:
+      - ./App:/app/app
