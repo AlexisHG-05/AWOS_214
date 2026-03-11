@@ -24,7 +24,10 @@ class Equipo(BaseModel):
     estado: str = Field(default="disponible") # disponible o prestado
 
 # BD Ficticia inicial
-db_equipos = [{"id": 1, "marca": "Dell", "modelo": "Latitude", "estado": "disponible"}]
+db_equipos = [{"id": 1, 
+             "marca": "Dell",
+             "modelo": "Latitude", 
+             "estado": "disponible"}]
 
 # --- ENDPOINTS ---
 
@@ -59,3 +62,5 @@ async def eliminar(id: int, admin: str = Depends(verificar_acceso)):
             db_equipos.remove(e)
             return {"mensaje": f"Equipo {id} eliminado por {admin}"}
     raise HTTPException(status_code=404, detail="ID no encontrado")
+
+    #proteccion completa para POST, PUT y DELETE con autenticacion HTTP Basic 
