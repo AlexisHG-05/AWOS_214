@@ -1,0 +1,8 @@
+services:
+  api:
+    build: .
+    container_name: server_GestionToken
+    ports:
+      - "21000:5000"  # <--- Puerto externo: 21000, Puerto interno: 5000
+    volumes:
+      - ./App:/app/app
