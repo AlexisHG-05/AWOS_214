@@ -1,7 +1,6 @@
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 import secrets
-from fasapi import Depends, HTTPSException, status
-
+from fastapi import Depends, HTTPException, status
 #Seguridad HTTP basic
 security= HTTPBasic()
 

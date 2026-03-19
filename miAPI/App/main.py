@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.routers import usuarios,varios
+from app.routers import usuarios,varios 
 #instancia del servidor 
 app = FastAPI(
     title="Mi primer API",
