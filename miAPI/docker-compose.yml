@@ -1,10 +1,10 @@
 version: "3.9"
 
 services:
-
   api:
     build: .
     container_name: ServerFastAPI
+    # FastAPI corre por defecto en el 5000, lo mapeamos al 5000 de tu PC
     ports:
       - "5000:5000"
     volumes:
@@ -13,7 +13,8 @@ services:
       postgres:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://admin:123456@postgres:5434/DB_miapi
+      # Usamos el nombre del servicio 'postgres' como host
+      DATABASE_URL: postgresql://admin:123456@postgres:5432/DB_miapi
 
   postgres:
     image: postgres:15
@@ -24,10 +25,9 @@ services:
       POSTGRES_PASSWORD: 123456
       POSTGRES_DB: DB_miapi
     ports:
-      - "5434:5434"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U admin -d DB_miapi"]
       interval: 5s

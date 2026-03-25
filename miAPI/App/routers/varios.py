@@ -1,6 +1,6 @@
 from typing import Optional
 from fastapi import APIRouter 
-from app.data.database import usuarios
+from App.data.database import usuarios
 
 router = APIRouter(tags=["Varios"])
 

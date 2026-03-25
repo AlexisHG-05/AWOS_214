@@ -1,7 +1,12 @@
 from fastapi import status, HTTPException, Depends, APIRouter
-from app.models.usuario import usuario_create
-from app.data.database import usuarios
-from app.security.auth import verificar_Peticion
+from App.data.database import usuarios
+from App.data.database import usuarios
+from App.security.auth import verificar_Peticion
+from App.models.usuario import usuario_create
+
+from sqlalchemy.orm import Session
+from App.data.db import get_db
+from App.data.usuario import Usuario as usuarioDB 
 
 
 router = APIRouter(
@@ -10,25 +15,31 @@ router = APIRouter(
 
 #Endpoins de usuarios, para el CRUD completo
 @router.get("/")
-async def leer_usuarios():
+async def leer_usuarios(db:Session= Depends(get_db)):
+
+    queryUsers= db.query(usuarioDB). all()
+    
     return{
         "status":"200",
-        "total": len(usuarios),
-        "usuarios":usuarios
+        "total": len(queryUsers),
+        "usuarios":queryUsers
     }
 
 @router.post("/",status_code=status.HTTP_201_CREATED)
-async def crear_usuario(usuario:usuario_create):
-    for usr in usuarios:
-        if usr ["id"] == usuario.id:
-            raise HTTPException(
-                status_code=400,
-                detail="El id ya existe"
-            )
-    usuarios.append(usuario)
+async def crear_usuario(usuarioP:usuario_create, db:Session= Depends(get_db)):
+
+    nuevoUsuario = usuarioDB(
+        id=usuarioP.id,
+        nombre=usuarioP.nombre,
+        edad=usuarioP.edad
+    )
+    db.add(nuevoUsuario)
+    db.commit()
+    db.refresh(nuevoUsuario)
+
     return{
         "mensaje":"Usuario agregado",
-        "Usuario":usuario
+        "Usuario":usuarioP
     }
 
 @router.put("/{id_buscado}",status_code=status.HTTP_200_OK, tags=["CRUD HTTP"])
